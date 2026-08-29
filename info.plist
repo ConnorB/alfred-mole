@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.connor.mole-alfred</string>
+	<key>category</key>
+	<string>Tools</string>
+	<key>connections</key>
+	<dict>
+		<key>9A735B09-DF03-4E0A-B122-1384904281A6</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>233D6BBC-33B0-4AA8-AF54-8F6A78A48F6E</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>233D6BBC-33B0-4AA8-AF54-8F6A78A48F6E</string>
+				<key>modifiers</key>
+				<integer>1048576</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>233D6BBC-33B0-4AA8-AF54-8F6A78A48F6E</string>
+				<key>modifiers</key>
+				<integer>524288</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>233D6BBC-33B0-4AA8-AF54-8F6A78A48F6E</string>
+				<key>modifiers</key>
+				<integer>262144</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>Connor Brown</string>
+	<key>description</key>
+	<string>Search and run Mole CLI commands from Alfred.</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>Mole CLI</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<true/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string>./launch.sh "$1"</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>233D6BBC-33B0-4AA8-AF54-8F6A78A48F6E</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<true/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<true/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>keyword</key>
+				<string>{var:keyword}</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Loading Mole commands…</string>
+				<key>script</key>
+				<string>./commands.sh</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string>Search Mole cleanup, uninstall, analysis, optimization, and monitoring commands</string>
+				<key>title</key>
+				<string>Mole CLI</string>
+				<key>type</key>
+				<integer>0</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>9A735B09-DF03-4E0A-B122-1384904281A6</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string>Type the keyword (`mo` by default) in Alfred to browse and search every Mole CLI command, then press Return to run it in your terminal.
+
+Modifier keys
+  Return          Run the command
+  Command-Return  Run it with --dry-run, which changes nothing
+  Option-Return   Run it with --dry-run --debug
+  Control-Return  Optimize rows only: flip disk verification for this run
+  Command-C       Copy the command to the clipboard
+  Command-L       Show the command in Large Type
+
+Commands that can delete files are labelled DELETES FILES in the result list. For those rows, Command-Return and Option-Return always add --dry-run, so a modifier can never trigger a real deletion by mistake.
+
+Configuration
+  Open the workflow's configuration in Alfred to change the keyword, to choose a terminal, and to turn on disk verification. Auto-detect picks the first of Ghostty, iTerm2, WezTerm, kitty, Alacritty, and Terminal that is installed.
+
+Disk verification
+  Mole skips "diskutil verifyVolume" unless MOLE_ENABLE_DISK_VERIFY=1 is set, because the check can freeze a Mac whose volume has APFS inconsistencies. Turn it on permanently in the workflow configuration, or press Control-Return on the Optimize row for one run. Rows with it enabled say "disk verify ON" in their subtitle.
+
+Requires the Mole CLI. Install it with `brew install mole`. If Mole is missing, the workflow offers to install it for you.</string>
+	<key>uidata</key>
+	<dict>
+		<key>233D6BBC-33B0-4AA8-AF54-8F6A78A48F6E</key>
+		<dict>
+			<key>xpos</key>
+			<real>420</real>
+			<key>ypos</key>
+			<real>120</real>
+		</dict>
+		<key>9A735B09-DF03-4E0A-B122-1384904281A6</key>
+		<dict>
+			<key>xpos</key>
+			<real>120</real>
+			<key>ypos</key>
+			<real>120</real>
+		</dict>
+	</dict>
+	<key>userconfigurationconfig</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string>mo</string>
+				<key>placeholder</key>
+				<string>mo</string>
+				<key>required</key>
+				<true/>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string>The Alfred keyword that opens the Mole command list.</string>
+			<key>label</key>
+			<string>Keyword</string>
+			<key>type</key>
+			<string>textfield</string>
+			<key>variable</key>
+			<string>keyword</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string>auto</string>
+				<key>pairs</key>
+				<array>
+					<array>
+						<string>Auto-detect</string>
+						<string>auto</string>
+					</array>
+					<array>
+						<string>Ghostty</string>
+						<string>ghostty</string>
+					</array>
+					<array>
+						<string>iTerm2</string>
+						<string>iterm</string>
+					</array>
+					<array>
+						<string>WezTerm</string>
+						<string>wezterm</string>
+					</array>
+					<array>
+						<string>kitty</string>
+						<string>kitty</string>
+					</array>
+					<array>
+						<string>Alacritty</string>
+						<string>alacritty</string>
+					</array>
+					<array>
+						<string>Terminal</string>
+						<string>terminal</string>
+					</array>
+				</array>
+				<key>required</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string>Auto-detect uses the first of Ghostty, iTerm2, WezTerm, kitty, Alacritty, or Terminal that is installed.</string>
+			<key>label</key>
+			<string>Open commands in</string>
+			<key>type</key>
+			<string>popupbutton</string>
+			<key>variable</key>
+			<string>terminal</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<false/>
+			</dict>
+			<key>description</key>
+			<string>Runs "diskutil verifyVolume /" as part of mo optimize. Mole leaves this off because the check can freeze a Mac whose volume has APFS inconsistencies, and it cannot be interrupted. Control-Return on the Optimize row flips this for a single run without changing the setting.</string>
+			<key>label</key>
+			<string>Verify disk during optimize (MOLE_ENABLE_DISK_VERIFY)</string>
+			<key>type</key>
+			<string>checkbox</string>
+			<key>variable</key>
+			<string>disk_verify</string>
+		</dict>
+	</array>
+	<key>variablesdontexport</key>
+	<array/>
+	<key>version</key>
+	<string>0.0.1</string>
+	<key>webaddress</key>
+	<string></string>
+</dict>
+</plist>

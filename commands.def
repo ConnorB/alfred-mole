@@ -1,0 +1,37 @@
+# Mole CLI command table — single source of truth.
+#
+# Fields are separated by "|":
+#   1 arg       arguments passed to the `mo` binary ("__menu__" = no arguments)
+#   2 title     row title shown in Alfred
+#   3 subtitle  row subtitle shown in Alfred
+#   4 keywords  extra search terms for Alfred's filtering
+#   5 mods      modifier behaviour, ";"-separated "key=extra args"
+#               "key=-" disables that modifier so it cannot fall through
+#               to the destructive default action.
+#   6 flags     space-separated row capabilities. "diskverify" marks a row
+#               that MOLE_ENABLE_DISK_VERIFY changes, which gives it a
+#               Control-Return toggle and a status marker in its subtitle.
+#
+# Every row that can delete files MUST define cmd and alt, so that
+# Command-Return and Option-Return never run a destructive command
+# without --dry-run.
+#
+__menu__|🐹 Mole Interactive Menu|Open Mole's complete interactive menu|menu home interactive all|cmd=-;alt=-|diskverify
+status|📊 System Status|Live, read-only dashboard for CPU, memory, disk, network, and power|status monitor cpu memory disk network health watch|cmd=-;alt=-|
+analyze|💽 Analyze Disk|Explore disk usage interactively and move items to Trash|analyze analyse disk storage files explorer usage|cmd=-;alt=-|
+analyze /Volumes|🔌 Analyze External Drives|Explore disk usage on mounted external volumes|analyze analyse external volumes drives usb sd disk|cmd=-;alt=-|
+clean|🧹 Clean Mac|DELETES FILES · caches, logs, temp files, and leftovers|clean cleanup delete caches logs leftovers junk|cmd=--dry-run;alt=--dry-run --debug|
+uninstall|🗑️ Uninstall Applications|DELETES FILES · remove apps together with their related files|uninstall remove delete applications apps leftovers|cmd=--dry-run;alt=--dry-run --debug|
+optimize|⚡ Optimize macOS|CHANGES SYSTEM · refresh supported caches, databases, and services|optimize optimise maintenance services performance speed|cmd=--dry-run;alt=--dry-run --debug|diskverify
+purge|📦 Purge Project Artifacts|DELETES FILES · node_modules, target, build, dist, and similar|purge delete project developer node_modules target build dist|cmd=--dry-run;alt=--dry-run --debug|
+installer|💿 Clean Installer Files|DELETES FILES · old DMG, PKG, ISO, XIP, and installer ZIP files|installer delete dmg pkg iso xip zip downloads|cmd=--dry-run;alt=--dry-run --debug|
+history|🕘 Cleanup History|Review Mole's record of previous cleanup operations|history log operations previous cleanup journal|cmd=-;alt=--json|
+clean --whitelist|🛡️ Protected Caches|Manage caches that cleanup must never touch|clean whitelist protect cache exclusions keep safe|cmd=-;alt=-|
+optimize --whitelist|🛡️ Protected Optimizations|Manage maintenance tasks and paths excluded from optimization|optimize whitelist protect maintenance exclusions keep|cmd=-;alt=-|
+purge --paths|📁 Project Scan Paths|Configure the directories scanned for project artifacts|purge paths directories projects config scan|cmd=-;alt=-|
+touchid|👆 Touch ID for sudo|Configure Touch ID authentication for sudo in the terminal|touchid touch id fingerprint sudo auth biometric|cmd=-;alt=-|
+completion|⌨️ Shell Completion|Set up tab completion for Mole in your shell|completion complete tab shell zsh bash fish|cmd=-;alt=-|
+update|⬆️ Update Mole|Update the installed Mole CLI to the latest release|update upgrade latest version new|cmd=-;alt=--nightly|
+remove|❌ Remove Mole|DELETES FILES · uninstall the Mole CLI from this Mac|remove uninstall delete mole itself self|cmd=--dry-run;alt=--dry-run --debug|
+--version|ℹ️ Mole Version|Show the installed Mole version and environment|version info installed about build|cmd=-;alt=-|
+--help|❓ Mole Help|Show Mole's command-line help|help commands usage manual docs|cmd=-;alt=-|

@@ -30,32 +30,28 @@ emit_field() {
     printf '"%s":"%s"' "$1" "$(json_escape "$2")"
 }
 
-# Free space on the boot volume, for the disk-related subtitles.
-disk_summary() {
-    local line
-    line="$(/bin/df -H / 2>/dev/null | /usr/bin/tail -1)" || return 1
-    # shellcheck disable=SC2086
-    set -- $line
-    [ "$#" -ge 4 ] && printf '%s free of %s' "$4" "$2"
-}
-
 printf '{"cache":{"seconds":30,"loosereload":true},"items":['
 
 mole_bin="$(find_mole)"
 
 if [ -z "$mole_bin" ]; then
     printf '{'
-    emit_field uid "install-mole"; printf ','
-    emit_field title "Mole CLI is not installed"; printf ','
-    emit_field subtitle "Press Return to run \"$INSTALL_HINT\" in your terminal"; printf ','
-    emit_field arg "__install__"; printf ','
-    emit_field match "install mole brew missing setup"; printf ','
-    printf '"valid":true,"text":{"copy":"%s"}}' "$(json_escape "$INSTALL_HINT")"
+    emit_field uid "install-mole"
+    printf ','
+    emit_field title "Mole CLI is not installed"
+    printf ','
+    emit_field subtitle "Install it with Homebrew: $INSTALL_HINT"
+    printf ','
+    emit_field match "install mole brew missing setup"
+    printf ','
+    printf '"valid":false,"text":{'
+    emit_field copy "$INSTALL_HINT"
+    printf ','
+    emit_field largetype "$INSTALL_HINT"
+    printf '}}'
     printf ']}'
     exit 0
 fi
-
-free_space="$(disk_summary)"
 
 # MOLE_ENABLE_DISK_VERIFY makes `mo optimize` run diskutil verifyVolume.
 # It is off by default because that check can freeze a Mac whose volume has
@@ -67,7 +63,7 @@ first=true
 
 while IFS='|' read -r arg title subtitle keywords mods flags; do
     case "$arg" in
-        ''|'#'*) continue ;;
+        '' | '#'*) continue ;;
     esac
 
     # Show whether disk verification is on, so the setting is never a
@@ -82,29 +78,28 @@ while IFS='|' read -r arg title subtitle keywords mods flags; do
         fi
     fi
 
-    # Enrich the disk rows with live capacity, which is the number that
-    # actually decides whether the command is worth running.
-    if [ -n "$free_space" ]; then
-        case "$arg" in
-            analyze|status) subtitle="$subtitle · $free_space" ;;
-        esac
-    fi
-
     if [ "$first" = true ]; then first=false; else printf ','; fi
 
     printf '{'
-    emit_field uid "$arg"; printf ','
-    emit_field title "$title"; printf ','
-    emit_field subtitle "$subtitle"; printf ','
-    emit_field arg "$arg"; printf ','
-    emit_field match "$title $subtitle $keywords"; printf ','
-    emit_field autocomplete "$arg"; printf ','
+    emit_field uid "$arg"
+    printf ','
+    emit_field title "$title"
+    printf ','
+    emit_field subtitle "$subtitle"
+    printf ','
+    emit_field arg "$arg"
+    printf ','
+    emit_field match "$title $subtitle $keywords"
+    printf ','
+    emit_field autocomplete "$arg"
+    printf ','
     printf '"valid":true,'
 
     display="mo $arg"
     [ "$arg" = "__menu__" ] && display="mo"
     printf '"text":{'
-    emit_field copy "$display"; printf ','
+    emit_field copy "$display"
+    printf ','
     emit_field largetype "$display"
     printf '},'
 
@@ -116,7 +111,10 @@ while IFS='|' read -r arg title subtitle keywords mods flags; do
         IFS="$saved_ifs"
         key="${entry%%=*}"
         extra="${entry#*=}"
-        [ -z "$key" ] && { IFS=';'; continue; }
+        [ -z "$key" ] && {
+            IFS=';'
+            continue
+        }
 
         if [ "$mod_first" = true ]; then mod_first=false; else printf ','; fi
 
@@ -128,7 +126,8 @@ while IFS='|' read -r arg title subtitle keywords mods flags; do
             printf '}'
         else
             printf '"%s":{"valid":true,' "$key"
-            emit_field arg "$arg $extra"; printf ','
+            emit_field arg "$arg $extra"
+            printf ','
             emit_field subtitle "Run: mo $arg $extra"
             printf '}'
         fi
@@ -142,13 +141,18 @@ while IFS='|' read -r arg title subtitle keywords mods flags; do
     if [ "$mod_first" = true ]; then mod_first=false; else printf ','; fi
     if [ "$row_disk_verify" = 1 ]; then
         printf '"ctrl":{"valid":true,'
-        emit_field arg "$arg"; printf ','
+        emit_field arg "$arg"
+        printf ','
         if [ "$disk_verify_on" = 1 ]; then
             emit_field subtitle "Run this once without disk verification"
-            printf ',"variables":{'; emit_field disk_verify_override "off"; printf '}'
+            printf ',"variables":{'
+            emit_field disk_verify_override "off"
+            printf '}'
         else
             emit_field subtitle "Run this once with MOLE_ENABLE_DISK_VERIFY=1 · can freeze a Mac with APFS problems"
-            printf ',"variables":{'; emit_field disk_verify_override "on"; printf '}'
+            printf ',"variables":{'
+            emit_field disk_verify_override "on"
+            printf '}'
         fi
         printf '}'
     else
@@ -158,6 +162,6 @@ while IFS='|' read -r arg title subtitle keywords mods flags; do
     fi
 
     printf '}}'
-done < "$COMMAND_TABLE"
+done <"$COMMAND_TABLE"
 
 printf ']}'

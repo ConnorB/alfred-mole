@@ -55,7 +55,7 @@
 	<key>createdby</key>
 	<string>Connor Brown</string>
 	<key>description</key>
-	<string>Search and run Mole CLI commands from Alfred.</string>
+	<string>Search for and run Mole CLI commands from Alfred.</string>
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
@@ -111,7 +111,7 @@
 				<key>queuemode</key>
 				<integer>1</integer>
 				<key>runningsubtext</key>
-				<string>Loading Mole commands…</string>
+				<string>The Mole commands load…</string>
 				<key>script</key>
 				<string>./commands.sh</string>
 				<key>scriptargtype</key>
@@ -136,25 +136,44 @@
 		</dict>
 	</array>
 	<key>readme</key>
-	<string>Type the keyword (`mo` by default) in Alfred to browse and search every Mole CLI command, then press Return to run it in your terminal.
+	<string># Mole CLI
 
-Modifier keys
-  Return          Run the command
-  Command-Return  Run it with --dry-run, which changes nothing
-  Option-Return   Run it with --dry-run --debug
-  Control-Return  Optimize rows only: flip disk verification for this run
-  Command-C       Copy the command to the clipboard
-  Command-L       Show the command in Large Type
+Type the keyword (`mo` by default) in Alfred. Select a Mole command. Then press Return.
 
-Commands that can delete files are labelled DELETES FILES in the result list. For those rows, Command-Return and Option-Return always add --dry-run, so a modifier can never trigger a real deletion by mistake.
+## Modifier keys
 
-Configuration
-  Open the workflow's configuration in Alfred to change the keyword, to choose a terminal, and to turn on disk verification. Auto-detect picks the first of Ghostty, iTerm2, WezTerm, kitty, Alacritty, and Terminal that is installed.
+- **Return:** Run the command.
+- **Command-Return:** Run the command with `--dry-run`. This option does not change files.
+- **Option-Return:** Run the command with `--dry-run --debug`.
+- **Control-Return:** Change disk verification for one optimization run.
+- **Command-C:** Copy the command to the clipboard.
+- **Command-L:** Show the command in Large Type.
 
-Disk verification
-  Mole skips "diskutil verifyVolume" unless MOLE_ENABLE_DISK_VERIFY=1 is set, because the check can freeze a Mac whose volume has APFS inconsistencies. Turn it on permanently in the workflow configuration, or press Control-Return on the Optimize row for one run. Rows with it enabled say "disk verify ON" in their subtitle.
+## File safety
 
-Requires the Mole CLI. Install it with `brew install mole`. If Mole is missing, the workflow offers to install it for you.</string>
+Some Mole commands can remove files. Alfred marks these rows with `DELETES FILES`.
+
+Command-Return and Option-Return always add `--dry-run` to these rows.
+
+## Settings
+
+Open the workflow settings in Alfred. You can change the keyword, terminal, and disk verification.
+
+Auto-detect selects Ghostty, iTerm2, WezTerm, kitty, Alacritty, or Terminal in this order.
+
+## Disk verification
+
+&gt; CAUTION: If you do not need disk verification, keep the setting off. Disk verification can freeze a Mac that has APFS errors.
+
+Select **Verify disk during optimize** in the workflow settings for all runs.
+
+Press Control-Return on an optimization row for one run. Affected rows show `disk verify ON`.
+
+## Requirements
+
+The workflow requires the Mole CLI. Install it with `brew install mole`.
+
+If Mole is not installed, the workflow shows this command.</string>
 	<key>uidata</key>
 	<dict>
 		<key>233D6BBC-33B0-4AA8-AF54-8F6A78A48F6E</key>
@@ -235,7 +254,7 @@ Requires the Mole CLI. Install it with `brew install mole`. If Mole is missing, 
 				<true/>
 			</dict>
 			<key>description</key>
-			<string>Auto-detect uses the first of Ghostty, iTerm2, WezTerm, kitty, Alacritty, or Terminal that is installed.</string>
+			<string>Auto-detect selects Ghostty, iTerm2, WezTerm, kitty, Alacritty, or Terminal in this order.</string>
 			<key>label</key>
 			<string>Open commands in</string>
 			<key>type</key>
@@ -250,7 +269,7 @@ Requires the Mole CLI. Install it with `brew install mole`. If Mole is missing, 
 				<false/>
 			</dict>
 			<key>description</key>
-			<string>Runs "diskutil verifyVolume /" as part of mo optimize. Mole leaves this off because the check can freeze a Mac whose volume has APFS inconsistencies, and it cannot be interrupted. Control-Return on the Optimize row flips this for a single run without changing the setting.</string>
+			<string>If this setting is on, "mo optimize" runs "diskutil verifyVolume /". The command can freeze a Mac that has APFS errors. Control-Return changes the setting for one run.</string>
 			<key>label</key>
 			<string>Verify disk during optimize (MOLE_ENABLE_DISK_VERIFY)</string>
 			<key>type</key>

@@ -17,18 +17,6 @@ INSTALL_HINT="brew install mole"
 
 # Print the path of the Mole binary, or return 1 if it is not installed.
 find_mole() {
-    local candidate
-    for candidate in \
-        "/opt/homebrew/bin/mo" \
-        "/usr/local/bin/mo" \
-        "$HOME/.local/bin/mo" \
-        "/opt/local/bin/mo"
-    do
-        if [ -x "$candidate" ]; then
-            printf '%s' "$candidate"
-            return 0
-        fi
-    done
     command -v mo 2>/dev/null || command -v mole 2>/dev/null || return 1
 }
 

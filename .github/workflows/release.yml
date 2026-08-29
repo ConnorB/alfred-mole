@@ -15,6 +15,29 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
+      - name: Set the CalVer version
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          python3 - "$version" <<'PY'
+          import datetime
+          import pathlib
+          import plistlib
+          import re
+          import sys
+
+          version = sys.argv[1]
+          if not re.fullmatch(r"\d{4}\.\d{2}\.\d{2}", version):
+              raise SystemExit("Release tags must use vYYYY.0M.0D, for example v2026.08.29")
+
+          datetime.date.fromisoformat(version.replace(".", "-"))
+          path = pathlib.Path("src/info.plist")
+          with path.open("rb") as source:
+              plist = plistlib.load(source)
+          plist["version"] = version
+          with path.open("wb") as output:
+              plistlib.dump(plist, output, sort_keys=False)
+          PY
+
       - name: Build workflow
         run: ./scripts/build.sh
 

@@ -94,6 +94,14 @@ arg|title|subtitle|keywords|mods|flags
 
 The launcher reads the table each time. It rejects arguments that are not in the table.
 
+## Versioning
+
+This project uses [Calendar Versioning](https://calver.org/calendar_versioning.html). The version scheme is `YYYY.0M.0D`.
+
+The version uses the release date in UTC. A release tag adds the `v` prefix, for example `v2026.08.29`.
+
+The release workflow writes the tag date to `info.plist`. It stops if the tag does not contain a valid date.
+
 ## Development
 
 Before you submit a change, run these commands:
@@ -107,4 +115,4 @@ The test script also creates the installable workflow. The checks require ShellC
 
 GitHub Actions runs these checks for every push and pull request.
 
-If you push a tag that starts with `v`, GitHub creates a release. The release contains the `.alfredworkflow` file.
+If you push a valid CalVer tag, GitHub creates a release. The release contains the `.alfredworkflow` file.

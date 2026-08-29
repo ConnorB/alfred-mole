@@ -281,7 +281,7 @@ If Mole is not installed, the workflow shows this command.</string>
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>0.0.1</string>
+	<string>2026.08.29</string>
 	<key>webaddress</key>
 	<string></string>
 </dict>

@@ -32,6 +32,7 @@ python3 - "$filter_output" "$SOURCE_DIR/commands.def" "$SOURCE_DIR/info.plist" <
 import json
 import plistlib
 import sys
+from datetime import datetime
 
 output_path, command_table_path, plist_path = sys.argv[1:]
 
@@ -69,6 +70,8 @@ with open(plist_path, "rb") as plist_file:
 
 assert plist["bundleid"] == "com.connor.mole-alfred"
 assert "\n\n## Modifier keys\n\n- " in plist["readme"]
+version_date = datetime.strptime(plist["version"], "%Y.%m.%d")
+assert plist["version"] == version_date.strftime("%Y.%m.%d"), "workflow version must use YYYY.0M.0D"
 configuration = {entry["variable"]: entry for entry in plist["userconfigurationconfig"]}
 assert set(configuration) == {"keyword", "terminal", "disk_verify"}
 assert [pair[1] for pair in configuration["terminal"]["config"]["pairs"]] == ["auto", "ghostty", "iterm", "wezterm", "kitty", "alacritty", "terminal"]

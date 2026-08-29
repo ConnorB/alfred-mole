@@ -283,6 +283,6 @@ If Mole is not installed, the workflow shows this command.</string>
 	<key>version</key>
 	<string>2026.08.29</string>
 	<key>webaddress</key>
-	<string></string>
+	<string>https://github.com/ConnorB/alfred-mole/releases/latest</string>
 </dict>
 </plist>

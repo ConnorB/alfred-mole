@@ -6,36 +6,37 @@ on:
       - "v*"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
   release:
+    needs: ci
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Set the CalVer version
+      # scripts/release.sh commits the version to src/info.plist before it
+      # creates the tag, so the repository and the release always agree.
+      - name: Check that the tag matches the workflow version
         run: |
-          version="${GITHUB_REF_NAME#v}"
-          python3 - "$version" <<'PY'
-          import datetime
-          import pathlib
+          python3 - "${GITHUB_REF_NAME#v}" <<'PY'
           import plistlib
-          import re
           import sys
 
-          version = sys.argv[1]
-          if not re.fullmatch(r"\d{4}\.\d{2}\.\d{2}", version):
-              raise SystemExit("Release tags must use vYYYY.0M.0D, for example v2026.08.29")
-
-          datetime.date.fromisoformat(version.replace(".", "-"))
-          path = pathlib.Path("src/info.plist")
-          with path.open("rb") as source:
-              plist = plistlib.load(source)
-          plist["version"] = version
-          with path.open("wb") as output:
-              plistlib.dump(plist, output, sort_keys=False)
+          tag_version = sys.argv[1]
+          with open("src/info.plist", "rb") as source:
+              plist_version = plistlib.load(source)["version"]
+          if tag_version != plist_version:
+              raise SystemExit(
+                  f"Tag v{tag_version} does not match version {plist_version} in src/info.plist. "
+                  "Create releases with scripts/release.sh."
+              )
           PY
 
       - name: Build workflow

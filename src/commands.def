@@ -25,12 +25,13 @@ uninstall|🗑️ Uninstall Applications|DELETES FILES · remove apps together w
 optimize|⚡ Optimize macOS|CHANGES SYSTEM · refresh supported caches, databases, and services|optimize optimise maintenance services performance speed|cmd=--dry-run;alt=--dry-run --debug|diskverify
 purge|📦 Purge Project Artifacts|DELETES FILES · node_modules, target, build, dist, and similar|purge delete project developer node_modules target build dist|cmd=--dry-run;alt=--dry-run --debug|
 installer|💿 Clean Installer Files|DELETES FILES · old DMG, PKG, ISO, XIP, and installer ZIP files|installer delete dmg pkg iso xip zip downloads|cmd=--dry-run;alt=--dry-run --debug|
+slim|🪶 Slim Universal Apps|DELETES FILES · remove Intel code from universal apps|slim intel universal binary x86 arm64 apps shrink delete|cmd=--dry-run;alt=--dry-run --debug|
 history|🕘 Cleanup History|Review Mole's record of previous cleanup operations|history log operations previous cleanup journal|cmd=-;alt=--json|
 clean --whitelist|🛡️ Protected Caches|Manage caches that cleanup must never touch|clean whitelist protect cache exclusions keep safe|cmd=-;alt=-|
 optimize --whitelist|🛡️ Protected Optimizations|Manage maintenance tasks and paths excluded from optimization|optimize whitelist protect maintenance exclusions keep|cmd=-;alt=-|
 purge --paths|📁 Project Scan Paths|Configure the directories scanned for project artifacts|purge paths directories projects config scan|cmd=-;alt=-|
 touchid|👆 Touch ID for sudo|Configure Touch ID authentication for sudo in the terminal|touchid touch id fingerprint sudo auth biometric|cmd=-;alt=-|
-completion|⌨️ Shell Completion|Set up tab completion for Mole in your shell|completion complete tab shell zsh bash fish|cmd=-;alt=-|
+completion|⌨️ Shell Completion|Set up tab completion for Mole in your shell|completion complete tab shell zsh bash fish|cmd=--dry-run;alt=--dry-run --debug|
 update|⬆️ Update Mole|Update the installed Mole CLI to the latest release|update upgrade latest version new|cmd=-;alt=--nightly|
 remove|❌ Remove Mole|DELETES FILES · uninstall the Mole CLI from this Mac|remove uninstall delete mole itself self|cmd=--dry-run;alt=--dry-run --debug|
 --version|ℹ️ Mole Version|Show the installed Mole version and environment|version info installed about build|cmd=-;alt=-|

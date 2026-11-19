@@ -75,10 +75,11 @@ If Mole is not installed, the workflow shows the installation command. You can c
 | `src/commands.def` | Defines every command and modifier. Both workflow scripts read this table. |
 | `src/commands.sh` | Gives Alfred the JSON command list. Alfred filters this list. |
 | `src/launch.sh` | Rejects arguments that are not in `commands.def`. Then it opens the selected terminal. |
-| `src/lib.sh` | Contains shared paths, Mole detection, and notifications. |
-| `scripts/build.sh` | Creates `dist/Mole-CLI.alfredworkflow` from the files in `src/`. |
+| `src/lib.sh` | Contains shared paths, Mole detection, notifications, and the `commands.def` reader that both scripts use. |
+| `scripts/build.sh` | Creates `dist/Mole-CLI.alfredworkflow` from the six workflow files in `src/`. Other files in `src/`, such as Alfred's `prefs.plist`, are not included. |
+| `scripts/release.sh` | Sets the version, runs the checks, commits the version, and creates the release tag. |
 | `scripts/lint.sh` | Runs ShellCheck. |
-| `tests/run.sh` | Covers the command table, script filter, launcher guard, and workflow archive. |
+| `tests/run.sh` | Covers the command table, script filter, launcher guard, and workflow archive. It also checks that the launcher accepts the same commands that the list shows. |
 
 ### Add a command
 
@@ -97,6 +98,20 @@ The launcher reads the table each time. It rejects arguments that are not in the
 ## Versioning
 
 This project uses [Calendar Versioning](https://calver.org/calendar_versioning.html). The version scheme is `YYYY.0M.0D`.
+
+To make a release, run the release script on a clean working tree. The script uses today's date if you do not give a version:
+
+```sh
+scripts/release.sh
+```
+
+The script writes the version to `src/info.plist`, runs the lint and the tests, commits the version, and creates the tag. Push the tag to publish the release:
+
+```sh
+git push origin HEAD vYYYY.MM.DD
+```
+
+The Release workflow runs CI again. Then it checks that the tag agrees with `src/info.plist` and attaches the workflow file to a GitHub release.
 
 The version uses the release date in UTC. A release tag adds the `v` prefix, for example `v2026.08.29`.
 

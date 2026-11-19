@@ -32,45 +32,37 @@ esac
 # Validate the selection against commands.def
 # ---------------------------------------------------------------------------
 
-# Flags of the row that matched, set by is_known_command.
+# Set by match_row: whether the selection matched, and that row's flags.
+matched=0
 matched_flags=""
 
-# Build the list of every argument string the script filter can produce:
-# each base command plus each of its enabled modifier variants.
-is_known_command() {
-    local wanted="$1" arg title subtitle keywords mods flags entry key extra saved_ifs
-
-    # title, subtitle, keywords and flags are read only so that the mods
-    # field is parsed on its own. Without flags here, mods would absorb it.
-    # shellcheck disable=SC2034
-    while IFS='|' read -r arg title subtitle keywords mods flags; do
-        case "$arg" in
-            '' | '#'*) continue ;;
-        esac
-        if [ "$wanted" = "$arg" ]; then
+# Accept the selection only if it is a row's base argument or one of that
+# row's enabled modifier variants, the same strings the script filter emits.
+# shellcheck disable=SC2329 # invoked indirectly by for_each_command
+match_row() {
+    local arg="$1" flags="$5" i=0
+    [ "$matched" = 1 ] && return 0
+    if [ "$selection" = "$arg" ]; then
+        matched=1
+        matched_flags="$flags"
+        return 0
+    fi
+    while [ "$i" -lt "${#MOD_KEYS[@]}" ]; do
+        if [ "${MOD_EXTRAS[$i]}" != "-" ] && [ "$selection" = "$arg ${MOD_EXTRAS[$i]}" ]; then
+            matched=1
             matched_flags="$flags"
             return 0
         fi
-
-        saved_ifs="$IFS"
-        IFS=';'
-        for entry in $mods; do
-            IFS="$saved_ifs"
-            key="${entry%%=*}"
-            extra="${entry#*=}"
-            if [ -n "$key" ] && [ "$extra" != "-" ] && [ "$wanted" = "$arg $extra" ]; then
-                matched_flags="$flags"
-                return 0
-            fi
-            IFS=';'
-        done
-        IFS="$saved_ifs"
-    done <"$COMMAND_TABLE"
-
-    return 1
+        i=$((i + 1))
+    done
 }
 
-if [ -z "$selection" ] || ! is_known_command "$selection"; then
+is_known_command() {
+    for_each_command match_row
+    [ "$matched" = 1 ]
+}
+
+if [ -z "$selection" ] || ! is_known_command; then
     exit 1
 fi
 
@@ -93,11 +85,7 @@ if [ -z "$mole_bin" ]; then
 fi
 
 shell_command=""
-row_affected_by_disk_verify=0
-case " $matched_flags " in
-    *" diskverify "*) row_affected_by_disk_verify=1 ;;
-esac
-if [ "$disk_verify_enabled" = 1 ] && [ "$row_affected_by_disk_verify" = 1 ]; then
+if [ "$disk_verify_enabled" = 1 ] && has_flag "$matched_flags" diskverify; then
     # Only rows flagged "diskverify" get the prefix, so it never
     # appears on a command the variable does nothing for. Prefixing the
     # command is the only reliable route: `open` does not hand this

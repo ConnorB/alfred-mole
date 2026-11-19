@@ -2,13 +2,16 @@ name: CI
 
 on:
   push:
+    # Tag pushes run these checks through release.yml instead.
+    branches: ["**"]
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -21,6 +24,14 @@ jobs:
 
       - name: Lint
         run: ./scripts/lint.sh
+
+  test:
+    # The workflow runs under macOS's /bin/bash 3.2 and osascript, so the
+    # tests must run on macOS to cover them.
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
 
       - name: Test and build
         run: ./tests/run.sh

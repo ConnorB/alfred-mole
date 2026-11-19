@@ -28,13 +28,30 @@ chmod +x "$mock_bin/mo"
 filter_output="$test_dir/commands.json"
 PATH="$mock_bin:/usr/bin:/bin" disk_verify=1 "$SOURCE_DIR/commands.sh" >"$filter_output"
 
-python3 - "$filter_output" "$SOURCE_DIR/commands.def" "$SOURCE_DIR/info.plist" <<'PY'
+# Every argument string the launcher accepts, read through the same helper
+# launch.sh uses and run by /bin/bash, the shell the workflow runs under.
+accepted_output="$test_dir/accepted.txt"
+# shellcheck disable=SC2016 # expanded by the inner shell
+/bin/bash -uc '
+    . "$1/lib.sh"
+    print_accepted() {
+        local i=0
+        printf "%s\n" "$1"
+        while [ "$i" -lt "${#MOD_KEYS[@]}" ]; do
+            [ "${MOD_EXTRAS[$i]}" = "-" ] || printf "%s\n" "$1 ${MOD_EXTRAS[$i]}"
+            i=$((i + 1))
+        done
+    }
+    for_each_command print_accepted
+' _ "$SOURCE_DIR" >"$accepted_output"
+
+python3 - "$filter_output" "$SOURCE_DIR/commands.def" "$SOURCE_DIR/info.plist" "$accepted_output" <<'PY'
 import json
 import plistlib
 import sys
 from datetime import datetime
 
-output_path, command_table_path, plist_path = sys.argv[1:]
+output_path, command_table_path, plist_path, accepted_path = sys.argv[1:]
 
 with open(output_path, encoding="utf-8") as output_file:
     payload = json.load(output_file)
@@ -64,6 +81,20 @@ assert optimize["mods"]["ctrl"]["variables"]["disk_verify_override"] == "off"
 assert by_argument["status"]["mods"]["ctrl"]["valid"] is False
 assert by_argument["__menu__"]["text"]["copy"] == "mo"
 assert "__install__" not in by_argument
+assert by_argument["slim"]["mods"]["cmd"]["arg"] == "slim --dry-run"
+assert by_argument["completion"]["mods"]["cmd"]["arg"] == "completion --dry-run"
+
+for item in items:
+    match_words = set(item["match"].split())
+    assert set(item["autocomplete"].split()) <= match_words, f"{item['arg']}: autocomplete would filter out its own row"
+
+offered = set()
+for item in items:
+    offered.add(item["arg"])
+    offered.update(mod["arg"] for mod in item["mods"].values() if mod["valid"])
+with open(accepted_path, encoding="utf-8") as accepted_file:
+    accepted = set(accepted_file.read().splitlines())
+assert offered == accepted, f"launcher and script filter disagree: {sorted(offered ^ accepted)}"
 
 with open(plist_path, "rb") as plist_file:
     plist = plistlib.load(plist_file)
@@ -79,10 +110,6 @@ PY
 
 if "$SOURCE_DIR/launch.sh" "__install__" >/dev/null 2>&1; then
     fail "launcher accepted an unknown command"
-fi
-
-if grep -q 'launch_argument' "$SOURCE_DIR/launch.sh" || ! grep -Fq 'set launchCommand to "exec /bin/zsh -lc " & quoted form of targetCommand' "$SOURCE_DIR/launch.sh"; then
-    fail "launcher does not use shell-neutral Terminal quoting"
 fi
 
 if [ -x /usr/bin/osascript ]; then

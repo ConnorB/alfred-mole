@@ -61,22 +61,24 @@ disk_verify_on=0
 
 first=true
 
-while IFS='|' read -r arg title subtitle keywords mods flags; do
-    case "$arg" in
-        '' | '#'*) continue ;;
-    esac
+emit_row() {
+    local arg="$1" title="$2" subtitle="$3" keywords="$4" flags="$5"
+    local row_disk_verify=0 display completion i key extra
 
     # Show whether disk verification is on, so the setting is never a
     # surprise at the point of running a real optimize.
-    row_disk_verify=0
-    case " $flags " in
-        *" diskverify "*) row_disk_verify=1 ;;
-    esac
-    if [ "$row_disk_verify" = 1 ]; then
-        if [ "$disk_verify_on" = 1 ]; then
-            subtitle="$subtitle · disk verify ON"
-        fi
+    has_flag "$flags" diskverify && row_disk_verify=1
+    if [ "$row_disk_verify" = 1 ] && [ "$disk_verify_on" = 1 ]; then
+        subtitle="$subtitle · disk verify ON"
     fi
+
+    # The command as the user would type it after "mo". Tab puts it in the
+    # query, so it is also part of match: otherwise autocompleting a row
+    # such as "clean --whitelist" could filter that same row out.
+    completion="$arg"
+    [ "$arg" = "__menu__" ] && completion="menu"
+    display="mo $arg"
+    [ "$arg" = "__menu__" ] && display="mo"
 
     if [ "$first" = true ]; then first=false; else printf ','; fi
 
@@ -89,14 +91,12 @@ while IFS='|' read -r arg title subtitle keywords mods flags; do
     printf ','
     emit_field arg "$arg"
     printf ','
-    emit_field match "$title $subtitle $keywords"
+    emit_field match "$completion $title $subtitle $keywords"
     printf ','
-    emit_field autocomplete "$arg"
+    emit_field autocomplete "$completion"
     printf ','
     printf '"valid":true,'
 
-    display="mo $arg"
-    [ "$arg" = "__menu__" ] && display="mo"
     printf '"text":{'
     emit_field copy "$display"
     printf ','
@@ -104,41 +104,29 @@ while IFS='|' read -r arg title subtitle keywords mods flags; do
     printf '},'
 
     printf '"mods":{'
-    mod_first=true
-    saved_ifs="$IFS"
-    IFS=';'
-    for entry in $mods; do
-        IFS="$saved_ifs"
-        key="${entry%%=*}"
-        extra="${entry#*=}"
-        [ -z "$key" ] && {
-            IFS=';'
-            continue
-        }
-
-        if [ "$mod_first" = true ]; then mod_first=false; else printf ','; fi
-
+    i=0
+    while [ "$i" -lt "${#MOD_KEYS[@]}" ]; do
+        key="${MOD_KEYS[$i]}"
+        extra="${MOD_EXTRAS[$i]}"
         if [ "$extra" = "-" ]; then
             # Explicitly inert: without this, the modifier would fall
             # through to the default action and run the command for real.
             printf '"%s":{"valid":false,' "$key"
             emit_field subtitle "This command has no modifier action"
-            printf '}'
+            printf '},'
         else
             printf '"%s":{"valid":true,' "$key"
             emit_field arg "$arg $extra"
             printf ','
             emit_field subtitle "Run: mo $arg $extra"
-            printf '}'
+            printf '},'
         fi
-        IFS=';'
+        i=$((i + 1))
     done
-    IFS="$saved_ifs"
 
     # Control-Return flips disk verification for this run only, leaving the
     # workflow setting alone. Rows the variable does not affect declare an
     # inert ctrl, so the modifier can never fall through to the plain action.
-    if [ "$mod_first" = true ]; then mod_first=false; else printf ','; fi
     if [ "$row_disk_verify" = 1 ]; then
         printf '"ctrl":{"valid":true,'
         emit_field arg "$arg"
@@ -162,6 +150,8 @@ while IFS='|' read -r arg title subtitle keywords mods flags; do
     fi
 
     printf '}}'
-done <"$COMMAND_TABLE"
+}
+
+for_each_command emit_row
 
 printf ']}'

@@ -21,21 +21,6 @@
 				<false/>
 			</dict>
 		</array>
-		<key>9AC12C05-5780-4807-8A91-7571C113A445</key>
-		<array>
-			<dict>
-				<key>destinationuid</key>
-				<string>A25BDDC9-26A5-4266-97BD-BF1761F0FB93</string>
-				<key>modifiers</key>
-				<integer>0</integer>
-				<key>modifiersubtext</key>
-				<string></string>
-				<key>sourceoutputuid</key>
-				<string>62DDB179-DFD2-477B-9240-BB66EE5F8FD6</string>
-				<key>vitoclose</key>
-				<false/>
-			</dict>
-		</array>
 		<key>9A735B09-DF03-4E0A-B122-1384904281A6</key>
 		<array>
 			<dict>
@@ -75,6 +60,21 @@
 				<integer>262144</integer>
 				<key>modifiersubtext</key>
 				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>9AC12C05-5780-4807-8A91-7571C113A445</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>A25BDDC9-26A5-4266-97BD-BF1761F0FB93</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>sourceoutputuid</key>
+				<string>62DDB179-DFD2-477B-9240-BB66EE5F8FD6</string>
 				<key>vitoclose</key>
 				<false/>
 			</dict>

@@ -26,7 +26,7 @@ For other rows, Alfred shows that the modifier has no action.
 Open the workflow settings in Alfred. Set these values:
 
 - **Keyword** — This word opens the command list. The default word is `mo`.
-- **Open commands in** — Select Ghostty, iTerm2, WezTerm, kitty, Alacritty, or Terminal. **Auto-detect** selects the first installed app in this order.
+- **Open commands in** — Select Ghostty, iTerm2, WezTerm, kitty, Alacritty, or Terminal. **Auto-detect** selects the first installed app in this order. **Alfred's terminal setting** uses the app that you set in Alfred's **Features › Terminal**, including a custom AppleScript.
 - **Verify disk during optimize** — This setting sets `MOLE_ENABLE_DISK_VERIFY=1`. The setting is off by default.
 
 ## Disk verification
@@ -74,7 +74,7 @@ If Mole is not installed, the workflow shows the installation command. You can c
 | --- | --- |
 | `src/commands.def` | Defines every command and modifier. Both workflow scripts read this table. |
 | `src/commands.sh` | Gives Alfred the JSON command list. Alfred filters this list. |
-| `src/launch.sh` | Rejects arguments that are not in `commands.def`. Then it opens the selected terminal. |
+| `src/launch.sh` | Rejects arguments that are not in `commands.def`. Then it opens the selected terminal. For Alfred's terminal setting, it prints the command, and Alfred's Terminal Command action runs it. |
 | `src/lib.sh` | Contains shared paths, Mole detection, notifications, and the `commands.def` reader that both scripts use. |
 | `scripts/build.sh` | Creates `dist/Mole-CLI.alfredworkflow` from the six workflow files in `src/`. Other files in `src/`, such as Alfred's `prefs.plist`, are not included. |
 | `scripts/release.sh` | Sets the version, runs the checks, commits the version, and creates the release tag. |

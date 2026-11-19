@@ -23,7 +23,10 @@ diff -u \
 mock_bin="$test_dir/bin"
 mkdir "$mock_bin"
 printf '#!/bin/sh\nexit 0\n' >"$mock_bin/mo"
-chmod +x "$mock_bin/mo"
+notification_log="$test_dir/notification.txt"
+# shellcheck disable=SC2016 # expanded by the mock
+printf '#!/bin/sh\nprintf "%%s|%%s\\n" "$MOLE_NOTIFY_TITLE" "$MOLE_NOTIFY_BODY" >>"%s"\n' "$notification_log" >"$mock_bin/osascript"
+chmod +x "$mock_bin/mo" "$mock_bin/osascript"
 
 filter_output="$test_dir/commands.json"
 PATH="$mock_bin:/usr/bin:/bin" disk_verify=1 "$SOURCE_DIR/commands.sh" >"$filter_output"
@@ -105,33 +108,52 @@ version_date = datetime.strptime(plist["version"], "%Y.%m.%d")
 assert plist["version"] == version_date.strftime("%Y.%m.%d"), "workflow version must use YYYY.0M.0D"
 configuration = {entry["variable"]: entry for entry in plist["userconfigurationconfig"]}
 assert set(configuration) == {"keyword", "terminal", "disk_verify"}
-assert [pair[1] for pair in configuration["terminal"]["config"]["pairs"]] == ["auto", "ghostty", "iterm", "wezterm", "kitty", "alacritty", "terminal"]
+assert [pair[1] for pair in configuration["terminal"]["config"]["pairs"]] == ["auto", "alfred", "ghostty", "iterm", "wezterm", "kitty", "alacritty", "terminal"]
+
+# The "alfred" choice reaches Alfred's Terminal Command action only through
+# a Conditional on the terminal variable, so other choices print nothing.
+objects = {obj["type"]: obj for obj in plist["objects"]}
+launcher_uid = objects["alfred.workflow.action.script"]["uid"]
+conditional = objects["alfred.workflow.utility.conditional"]
+terminal_action = objects["alfred.workflow.action.terminalcommand"]
+[condition] = conditional["config"]["conditions"]
+assert (condition["inputstring"], condition["matchstring"], condition["matchmode"]) == ("{var:terminal}", "alfred", 0)
+assert terminal_action["config"]["script"] == "{query}"
+assert [c["destinationuid"] for c in plist["connections"][launcher_uid]] == [conditional["uid"]]
+[branch] = plist["connections"][conditional["uid"]]
+assert (branch["sourceoutputuid"], branch["destinationuid"]) == (condition["uid"], terminal_action["uid"])
 PY
 
-if "$SOURCE_DIR/launch.sh" "__install__" >/dev/null 2>&1; then
+if PATH="$mock_bin:/usr/bin:/bin" "$SOURCE_DIR/launch.sh" "__install__" >/dev/null 2>&1; then
     fail "launcher accepted an unknown command"
 fi
+grep -q '^Mole workflow|This command is not in' "$notification_log" 2>/dev/null ||
+    fail "launcher did not report an unknown command"
 
-if [ -x /usr/bin/osascript ]; then
-    probe_command="printf '%s\\n' 'shell boundary works …'"
-    quoted_probe="$(
-        LC_ALL=C /usr/bin/osascript - "$probe_command" <<'APPLESCRIPT'
-on run argv
-    return quoted form of item 1 of argv
-end run
-APPLESCRIPT
-    )"
-    # Terminal and iTerm2 type the launch command into the user's login
-    # shell. These are the login shells the launcher supports. The list is
-    # fixed rather than read from /etc/shells, because CI runner images add
-    # shells such as PowerShell, which does not use POSIX quoting.
-    for supported_shell in /bin/bash /bin/csh /bin/dash /bin/ksh /bin/sh /bin/tcsh /bin/zsh \
-        /opt/homebrew/bin/fish /usr/local/bin/fish; do
-        [ -x "$supported_shell" ] || continue
-        output="$(LC_ALL=C "$supported_shell" -c "exec /bin/zsh -lc $quoted_probe" 2>&1)" ||
-            fail "Terminal command failed in $supported_shell: $output"
-        [ "$output" = "shell boundary works …" ] || fail "Terminal command printed the wrong output in $supported_shell: $output"
-    done
-fi
+# With the "alfred" choice the launcher prints the line that Alfred types
+# into the user's terminal. --version is used because a real Mole earlier
+# on PATH than the mock would run, and --version changes nothing.
+alfred_command="$(PATH="$mock_bin:/usr/bin:/bin" terminal=alfred "$SOURCE_DIR/launch.sh" --version)" ||
+    fail "launcher failed for Alfred's terminal"
+case "$alfred_command" in
+    "exec /bin/zsh -lc '"*) ;;
+    *) fail "unexpected Alfred terminal command: $alfred_command" ;;
+esac
+
+# Terminal, iTerm2, and Alfred's terminal type the launch command into the
+# user's login shell. These are the login shells the launcher supports. The
+# list is fixed rather than read from /etc/shells, because CI runner images
+# add shells such as PowerShell, which does not use POSIX quoting. Standard
+# input is empty, so the "Press Return" prompt ends at once.
+for supported_shell in /bin/bash /bin/csh /bin/dash /bin/ksh /bin/sh /bin/tcsh /bin/zsh \
+    /opt/homebrew/bin/fish /usr/local/bin/fish; do
+    [ -x "$supported_shell" ] || continue
+    output="$(LC_ALL=C "$supported_shell" -c "$alfred_command" </dev/null 2>&1)" ||
+        fail "Terminal command failed in $supported_shell: $output"
+    case "$output" in
+        *"Mole finished."*) ;;
+        *) fail "Terminal command printed the wrong output in $supported_shell: $output" ;;
+    esac
+done
 
 printf 'All tests passed.\n'

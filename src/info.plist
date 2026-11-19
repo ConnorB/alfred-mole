@@ -8,6 +8,34 @@
 	<string>Tools</string>
 	<key>connections</key>
 	<dict>
+		<key>233D6BBC-33B0-4AA8-AF54-8F6A78A48F6E</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>9AC12C05-5780-4807-8A91-7571C113A445</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>9AC12C05-5780-4807-8A91-7571C113A445</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>A25BDDC9-26A5-4266-97BD-BF1761F0FB93</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>sourceoutputuid</key>
+				<string>62DDB179-DFD2-477B-9240-BB66EE5F8FD6</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>9A735B09-DF03-4E0A-B122-1384904281A6</key>
 		<array>
 			<dict>
@@ -67,8 +95,6 @@
 			<dict>
 				<key>concurrently</key>
 				<true/>
-				<key>escaping</key>
-				<integer>102</integer>
 				<key>script</key>
 				<string>./launch.sh "$1"</string>
 				<key>scriptargtype</key>
@@ -98,8 +124,6 @@
 				<integer>0</integer>
 				<key>argumenttype</key>
 				<integer>1</integer>
-				<key>escaping</key>
-				<integer>102</integer>
 				<key>keyword</key>
 				<string>{var:keyword}</string>
 				<key>queuedelaycustom</key>
@@ -134,6 +158,53 @@
 			<key>version</key>
 			<integer>3</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>conditions</key>
+				<array>
+					<dict>
+						<key>inputstring</key>
+						<string>{var:terminal}</string>
+						<key>matchcasesensitive</key>
+						<false/>
+						<key>matchmode</key>
+						<integer>0</integer>
+						<key>matchstring</key>
+						<string>alfred</string>
+						<key>outputlabel</key>
+						<string>Alfred's terminal</string>
+						<key>uid</key>
+						<string>62DDB179-DFD2-477B-9240-BB66EE5F8FD6</string>
+					</dict>
+				</array>
+				<key>elselabel</key>
+				<string>else</string>
+				<key>hideelse</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.conditional</string>
+			<key>uid</key>
+			<string>9AC12C05-5780-4807-8A91-7571C113A445</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>script</key>
+				<string>{query}</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.terminalcommand</string>
+			<key>uid</key>
+			<string>A25BDDC9-26A5-4266-97BD-BF1761F0FB93</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string># Mole CLI
@@ -161,6 +232,8 @@ Open the workflow settings in Alfred. You can change the keyword, terminal, and 
 
 Auto-detect selects Ghostty, iTerm2, WezTerm, kitty, Alacritty, or Terminal in this order.
 
+**Alfred's terminal setting** uses the terminal app that you set in Alfred's Features &gt; Terminal, including a custom AppleScript.
+
 ## Disk verification
 
 &gt; CAUTION: If you do not need disk verification, keep the setting off. Disk verification can freeze a Mac that has APFS errors.
@@ -187,6 +260,20 @@ If Mole is not installed, the workflow shows this command.</string>
 		<dict>
 			<key>xpos</key>
 			<real>120</real>
+			<key>ypos</key>
+			<real>120</real>
+		</dict>
+		<key>9AC12C05-5780-4807-8A91-7571C113A445</key>
+		<dict>
+			<key>xpos</key>
+			<real>600</real>
+			<key>ypos</key>
+			<real>145</real>
+		</dict>
+		<key>A25BDDC9-26A5-4266-97BD-BF1761F0FB93</key>
+		<dict>
+			<key>xpos</key>
+			<real>720</real>
 			<key>ypos</key>
 			<real>120</real>
 		</dict>
@@ -226,6 +313,10 @@ If Mole is not installed, the workflow shows this command.</string>
 						<string>auto</string>
 					</array>
 					<array>
+						<string>Alfred's terminal setting</string>
+						<string>alfred</string>
+					</array>
+					<array>
 						<string>Ghostty</string>
 						<string>ghostty</string>
 					</array>
@@ -254,7 +345,7 @@ If Mole is not installed, the workflow shows this command.</string>
 				<true/>
 			</dict>
 			<key>description</key>
-			<string>Auto-detect selects Ghostty, iTerm2, WezTerm, kitty, Alacritty, or Terminal in this order.</string>
+			<string>Auto-detect selects Ghostty, iTerm2, WezTerm, kitty, Alacritty, or Terminal in this order. Alfred's terminal setting uses the app set in Alfred's Features &gt; Terminal.</string>
 			<key>label</key>
 			<string>Open commands in</string>
 			<key>type</key>

@@ -60,9 +60,10 @@ has_flag() {
 }
 
 # Show a macOS notification. Text is passed through the environment so
-# that quotes in the message cannot break the AppleScript.
+# that quotes in the message cannot break the AppleScript. osascript is
+# found through PATH, so tests can replace it.
 notify() {
-    MOLE_NOTIFY_TITLE="$1" MOLE_NOTIFY_BODY="$2" /usr/bin/osascript <<'APPLESCRIPT' >/dev/null 2>&1
+    MOLE_NOTIFY_TITLE="$1" MOLE_NOTIFY_BODY="$2" osascript <<'APPLESCRIPT' >/dev/null 2>&1
 set noticeTitle to system attribute "MOLE_NOTIFY_TITLE"
 set noticeBody to system attribute "MOLE_NOTIFY_BODY"
 display notification noticeBody with title noticeTitle

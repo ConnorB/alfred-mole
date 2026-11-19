@@ -63,6 +63,7 @@ is_known_command() {
 }
 
 if [ -z "$selection" ] || ! is_known_command; then
+    notify "Mole workflow" "This command is not in the workflow's command list."
     exit 1
 fi
 
@@ -110,6 +111,20 @@ if [ "$selection" = "__menu__" ]; then window_title="mo"; else window_title="mo 
 printf -v title_escape '%q' "$window_title"
 shell_command="printf '\\033]0;%s\\007' $title_escape; $shell_command; mole_exit=\$?; printf '\\n'; if [ \$mole_exit -ne 0 ]; then printf 'Mole exited with status %s.\\n' \"\$mole_exit\"; else printf 'Mole finished.\\n'; fi; printf 'Press Return to close this window…'; read -r; exit \$mole_exit"
 
+# Terminal, iTerm2, and Alfred's own terminal setting type a line into the
+# user's login shell, which can be fish or csh rather than a POSIX shell.
+# So that line only starts zsh, with the command in single quotes. Every
+# supported shell reads '\'' inside single quotes the same way.
+single_quote="'"
+launch_command="exec /bin/zsh -lc '${shell_command//$single_quote/$single_quote\\$single_quote$single_quote}'"
+
+if [ "$terminal_choice" = "alfred" ]; then
+    # info.plist sends this output to Alfred's Terminal Command action,
+    # which opens the terminal chosen in Alfred's Features > Terminal.
+    printf '%s' "$launch_command"
+    exit 0
+fi
+
 app_installed() {
     local directory
     for directory in "/Applications" "$HOME/Applications" "/System/Applications/Utilities" "/Applications/Utilities"; do
@@ -119,11 +134,10 @@ app_installed() {
 }
 
 open_with_applescript() {
-    /usr/bin/osascript - "$shell_command" "$1" <<'APPLESCRIPT'
+    /usr/bin/osascript - "$launch_command" "$1" <<'APPLESCRIPT' >/dev/null
 on run argv
-    set targetCommand to item 1 of argv
+    set launchCommand to item 1 of argv
     set targetApp to item 2 of argv
-    set launchCommand to "exec /bin/zsh -lc " & quoted form of targetCommand
     if targetApp is "iTerm" then
         tell application "iTerm"
             activate

@@ -30,7 +30,7 @@ emit_field() {
     printf '"%s":"%s"' "$1" "$(json_escape "$2")"
 }
 
-printf '{"cache":{"seconds":30,"loosereload":true},"items":['
+printf '{"items":['
 
 mole_bin="$(find_mole)"
 

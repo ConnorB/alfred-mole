@@ -121,14 +121,17 @@ on run argv
 end run
 APPLESCRIPT
     )"
-    while IFS= read -r supported_shell; do
-        case "$supported_shell" in
-            '' | '#'*) continue ;;
-        esac
+    # Terminal and iTerm2 type the launch command into the user's login
+    # shell. These are the login shells the launcher supports. The list is
+    # fixed rather than read from /etc/shells, because CI runner images add
+    # shells such as PowerShell, which does not use POSIX quoting.
+    for supported_shell in /bin/bash /bin/csh /bin/dash /bin/ksh /bin/sh /bin/tcsh /bin/zsh \
+        /opt/homebrew/bin/fish /usr/local/bin/fish; do
         [ -x "$supported_shell" ] || continue
-        output="$(LC_ALL=C "$supported_shell" -c "exec /bin/zsh -lc $quoted_probe")"
-        [ "$output" = "shell boundary works …" ] || fail "Terminal command failed in $supported_shell"
-    done </etc/shells
+        output="$(LC_ALL=C "$supported_shell" -c "exec /bin/zsh -lc $quoted_probe" 2>&1)" ||
+            fail "Terminal command failed in $supported_shell: $output"
+        [ "$output" = "shell boundary works …" ] || fail "Terminal command printed the wrong output in $supported_shell: $output"
+    done
 fi
 
 printf 'All tests passed.\n'

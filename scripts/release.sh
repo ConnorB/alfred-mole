@@ -36,6 +36,8 @@ if ! { ./scripts/lint.sh && ./tests/run.sh; }; then
 fi
 
 git diff --quiet -- "$plist" || git commit --quiet -m "Release $version" -- "$plist"
-git tag "$tag"
+# An annotated tag with a message also works when tag.gpgSign is on, which
+# makes git sign every tag and refuse one without a message.
+git tag -a "$tag" -m "Release $version"
 
 printf 'Created %s. Push it to publish the release:\n  git push origin HEAD %s\n' "$tag" "$tag"
